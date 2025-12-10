@@ -76,6 +76,7 @@ axi4lite-uvm-verification/
 │   ├── add_files.tcl                    # File management
 │   ├── run_simulation.tcl               # Simulation control
 │   └── compile_all.tcl                  # Batch compilation
+│   └── waveform_setup.tcl               # Waveform Setup 
 ├── docs/
 │   ├── protocol_spec.md                 # AXI4-Lite protocol details
 │   └── verification_plan.md             # Verification strategy
