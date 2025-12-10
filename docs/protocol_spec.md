@@ -243,84 +243,93 @@ WDATA   = 32'h12xxxxxx  // Lower 24 bits don't care
 WSTRB   = 4'b1000       // Write only byte 3
 ```
 
+# AXI4 Protocol Timing and Error Conditions
+
 ## Timing Requirements
-Clock and Reset
-Clock frequency: Typically 100-200MHz for Zynq devices
 
-Reset polarity: Active low (ARESETn = 0 for reset)
+### Clock and Reset
+- **Clock frequency**: Typically 100-200MHz for Zynq devices
+- **Reset polarity**: Active low (ARESETn = 0 for reset)
+- **Reset deassertion**: Must be synchronized to clock
 
-Reset deassertion: Must be synchronized to clock
+### Signal Timing Rules
 
-Signal Timing Rules
-Rule 1: Setup and Hold Times
-          ┌───┐   ┌───┐   ┌───┐
-CLK    ___│   │___│   │___│   │___
-          │ tsu│   │ th│
-DATA  _____________________│=======│___________
-          ↑ Setup  ↑ Hold
-Rule 2: Minimum VALID Assertion
-VALID must remain asserted for at least 1 clock cycle after handshake
+**Rule 1: Setup and Hold Times**
+```
+┌───┐   ┌───┐   ┌───┐
+CLK │   │___│   │___│   │
+    │ tsu│   │ th│
+DATA __________│=======│
+        ↑ Setup ↑ Hold
+```
 
-Rule 3: Maximum Response Delay
-Slave should respond within reasonable time (implementation specific)
+**Rule 2: Minimum VALID Assertion**
+- VALID must remain asserted for at least 1 clock cycle after handshake
 
-Typically 1-16 clock cycles
+**Rule 3: Maximum Response Delay**
+- Slave should respond within reasonable time (implementation specific)
+- Typically 1-16 clock cycles
 
-Back-to-Back Transactions
-Cycle:  0   1   2   3   4   5   6   7   8
-AWVALID ____|-------|_______|-------|
-AWREADY ________|-------|_______|-------|
-                    ↑      ↑      ↑
-                Txn1   Txn2   Txn3
-Error Conditions
-  Protocol Violations
-  Category 1: Signal Timing Errors
-    1. VALID deasserted before handshake
-    ```systemverilog
-    // Violation: VALID goes low before READY
-    @(posedge ACLK) (VALID && !READY) |=> !VALID
-    ```
-    2. Address/data changed while VALID=1 and READY=0
-    ```systemverilog
-    // Violation: Signals not stable
-    @(posedge ACLK) (VALID && !READY) |=> $stable(ADDR) && $stable(DATA)
-    ```
-  Category 2: Protocol Rule Violations
-    1. Unaligned address
-    ```systemverilog
-    // Violation: ADDR[1:0] != 2'b00
-    @(posedge ACLK) VALID |-> (ADDR[1:0] == 2'b00)
-    Invalid write strobe
-    ```
-    2. Invalid write strobe
-    ```systemverilog
-    // Violation: WSTRB == 4'b0000
-    @(posedge ACLK) WVALID |-> (WSTRB != 4'b0000)
-    Invalid response code
-    ```
-    3. Invalid response code
-    ```systemverilog
-    // Violation: Response not 00, 10, or 11
-    @(posedge ACLK) (BVALID || RVALID) |-> (RESP inside {2'b00, 2'b10, 2'b11})
-    Category 3: Transaction Ordering Errors
-    Write response before data handshake
-    ```
-  Category 3: Transaction Ordering Errors
-    1. Write response before data handshake
-    ```systemverilog
-    // Violation: BVALID before W handshake
-    !(AWVALID && AWREADY && WVALID && WREADY) throughout (##[0:$] BVALID)
-    Read data before address handshake
-    ```
-    2. Read data before address handshake
-    ```systemverilog
-    // Violation: RVALID before AR handshake
-    !(ARVALID && ARREADY) throughout (##[0:$] RVALID)
-    Error Recovery
-    Protocol violations should be detected by assertions
-    ```
+### Back-to-Back Transactions
+```
+Cycle:   0   1   2   3   4   5   6   7   8
+AWVALID |-------||-------|
+AWREADY ________|-------|____|-------|
+                 ↑      ↑     ↑
+                Txn1   Txn2  Txn3
+```
 
-Error Recovery
-  1. Protocol violations should be detected by assertions
-  2. Design may ignore or flag violations
-  3. Testbench should inject and detect error conditions
+## Error Conditions and Protocol Violations
+
+### Category 1: Signal Timing Errors
+
+**1. VALID deasserted before handshake**
+```systemverilog
+// Violation: VALID goes low before READY
+@(posedge ACLK) (VALID && !READY) |=> !VALID
+```
+
+**2. Address/data changed while VALID=1 and READY=0**
+```systemverilog
+// Violation: Signals not stable
+@(posedge ACLK) (VALID && !READY) |=> $stable(ADDR) && $stable(DATA)
+```
+
+### Category 2: Protocol Rule Violations
+
+**1. Unaligned address**
+```systemverilog
+// Violation: ADDR[1:0] != 2'b00
+@(posedge ACLK) VALID |-> (ADDR[1:0] == 2'b00)
+```
+
+**2. Invalid write strobe**
+```systemverilog
+// Violation: WSTRB == 4'b0000
+@(posedge ACLK) WVALID |-> (WSTRB != 4'b0000)
+```
+
+**3. Invalid response code**
+```systemverilog
+// Violation: Response not 00, 10, or 11
+@(posedge ACLK) (BVALID || RVALID) |-> (RESP inside {2'b00, 2'b10, 2'b11})
+```
+
+### Category 3: Transaction Ordering Errors
+
+**1. Write response before data handshake**
+```systemverilog
+// Violation: BVALID before W handshake
+!(AWVALID && AWREADY && WVALID && WREADY) throughout (##[0:$] BVALID)
+```
+
+**2. Read data before address handshake**
+```systemverilog
+// Violation: RVALID before AR handshake
+!(ARVALID && ARREADY) throughout (##[0:$] RVALID)
+```
+
+## Error Recovery
+- Protocol violations should be detected by assertions
+- Design may ignore or flag violations
+- Testbench should inject and detect error conditions
