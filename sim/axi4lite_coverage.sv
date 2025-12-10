@@ -189,4 +189,73 @@ class axi4lite_coverage extends uvm_subscriber #(axi4lite_transaction);
     // Get coverage report
     virtual function void get_coverage_report(ref real transaction_cov, ref real protocol_cov);
         int hits;
-        cg
+        cg_axi4lite_transaction.get_inst_coverage(hits, transaction_cov);
+        cg_axi4lite_protocol.get_inst_coverage(hits, protocol_cov);
+    endfunction
+    
+    // Print coverage report
+    virtual function void print_coverage_report(string prefix = "");
+        real transaction_cov, protocol_cov;
+        get_coverage_report(transaction_cov, protocol_cov);
+        
+        `uvm_info("COVERAGE_REPORT", $sformatf("%sCoverage Report for '%s':", 
+            prefix, get_name()), UVM_LOW)
+        `uvm_info("COVERAGE_REPORT", $sformatf("%s  Transaction coverage: %0.2f%%", 
+            prefix, transaction_cov), UVM_LOW)
+        `uvm_info("COVERAGE_REPORT", $sformatf("%s  Protocol coverage: %0.2f%%", 
+            prefix, protocol_cov), UVM_LOW)
+        `uvm_info("COVERAGE_REPORT", $sformatf("%s  Total transactions sampled: %0d", 
+            prefix, transaction_count), UVM_LOW)
+        `uvm_info("COVERAGE_REPORT", $sformatf("%s  Coverage hits: %0d", 
+            prefix, coverage_hits), UVM_LOW)
+        
+        // Check if coverage targets are met
+        if (transaction_cov >= 95.0) begin
+            `uvm_info("COVERAGE_REPORT", $sformatf("%s  TRANSACTION COVERAGE TARGET MET! (>= 95%%)", 
+                prefix), UVM_HIGH)
+        end
+        else begin
+            `uvm_warning("COVERAGE_REPORT", $sformatf("%s  Transaction coverage below target: %0.2f%%", 
+                prefix, transaction_cov))
+        end
+    endfunction
+    
+    // Reset coverage
+    virtual function void reset_coverage();
+        cg_axi4lite_transaction.stop();
+        cg_axi4lite_protocol.stop();
+        cg_axi4lite_transaction.start();
+        cg_axi4lite_protocol.start();
+        transaction_count = 0;
+        coverage_hits = 0;
+        coverage_percentage = 0.0;
+        `uvm_info("COVERAGE", "Coverage collector reset", UVM_MEDIUM)
+    endfunction
+    
+    // Start coverage collection
+    virtual function void start_coverage();
+        cg_axi4lite_transaction.start();
+        cg_axi4lite_protocol.start();
+        `uvm_info("COVERAGE", "Coverage collection started", UVM_MEDIUM)
+    endfunction
+    
+    // Stop coverage collection
+    virtual function void stop_coverage();
+        cg_axi4lite_transaction.stop();
+        cg_axi4lite_protocol.stop();
+        `uvm_info("COVERAGE", "Coverage collection stopped", UVM_MEDIUM)
+    endfunction
+    
+    // End of elaboration
+    function void end_of_elaboration_phase(uvm_phase phase);
+        super.end_of_elaboration_phase(phase);
+        print_coverage_report();
+    endfunction
+    
+    // Extract phase - print final coverage
+    function void extract_phase(uvm_phase phase);
+        super.extract_phase(phase);
+        print_coverage_report("FINAL ");
+    endfunction
+    
+endclass
