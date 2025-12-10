@@ -1,0 +1,46 @@
+# Vivado files
+*.jou
+*.log
+*.pb
+*.xpr
+*.xml
+*.wdb
+*.wcfg
+*.str
+*.log
+*.zip
+
+# Project files
+.project/
+.idea/
+.vscode/
+*.xpr
+*.xise
+*.qpf
+
+# Simulation files
+work/
+xsim.dir/
+*.vcd
+*.vpd
+*.fsdb
+*.shm
+
+# Compiled files
+*.o
+*.so
+*.exe
+
+# Reports
+reports/*.html
+reports/*.txt
+
+# Temporary files
+.Xil/
+*.tmp
+*.bak
+*.old
+
+# OS files
+.DS_Store
+Thumbs.db
