@@ -66,6 +66,8 @@ axi4lite-uvm-verification/
 │   │   ├── axi4lite_sequence.sv         # Base sequence
 │   │   ├── axi4lite_boundary_sequence.sv
 │   │   └── axi4lite_error_sequence.sv
+│   │   └── axi4lite_random_sequence.sv
+│   │   └── axi4lite_write_read_sequence.sv
 │   └── tests/
 │       ├── axi4lite_base_test.sv        # Base test class
 │       └── axi4lite_write_read_test.sv  # Specific test scenario
