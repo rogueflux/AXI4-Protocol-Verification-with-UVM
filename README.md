@@ -249,6 +249,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Xilinx for Vivado Design Suite and UVM integration
 - All contributors and verification engineers who provided feedback
 
-**Happy Verifying!** 🎯
-
 *Note: This project is for educational and professional verification purposes. Always verify against the latest AXI4 specification from ARM.*
