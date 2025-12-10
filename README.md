@@ -26,7 +26,6 @@ The AXI4-Lite Protocol Verification project establishes a scalable, reusable UVM
 
 This project demonstrates a **professional-grade verification methodology** applicable to complex SoC designs by combining constrained random stimulus generation, comprehensive functional coverage, protocol assertions, and automated scoreboarding.
 
-![UVM Testbench Architecture](media/image1.jpg)
 
 ## Project Architecture
 
