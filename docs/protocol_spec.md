@@ -12,8 +12,6 @@
 8. [Address Alignment](#address-alignment)
 9. [Write Strobes](#write-strobes)
 10. [Timing Requirements](#timing-requirements)
-11. [Error Conditions](#error-conditions)
-12. [Protocol Limitations](#protocol-limitations)
 
 ## Introduction
 
@@ -244,7 +242,8 @@ AWADDR  = 32'h0000_0100
 WDATA   = 32'h12xxxxxx  // Lower 24 bits don't care
 WSTRB   = 4'b1000       // Write only byte 3
 ```
-Timing Requirements
+
+## Timing Requirements
 Clock and Reset
 Clock frequency: Typically 100-200MHz for Zynq devices
 
