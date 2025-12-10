@@ -78,8 +78,7 @@ axi4lite-uvm-verification/
 │   └── compile_all.tcl                  # Batch compilation
 │   └── waveform_setup.tcl               # Waveform Setup 
 ├── docs/
-│   ├── protocol_spec.md                 # AXI4-Lite protocol details
-│   └── verification_plan.md             # Verification strategy
+│   └── protocol_spec.md                 # AXI4-Lite protocol details
 ├── constraints/
 │   └── timing.xdc                       # Timing constraints
 ├── reports/
